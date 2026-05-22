@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CancerDetect AI — Accueil{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="container py-5">
+    <div class="row align-items-center min-vh-50">
+      <div class="col-lg-7 mb-5 mb-lg-0">
+        <div class="badge-pill mb-3">
+          <i class="bi bi-stars me-1"></i>Intelligence Artificielle Médicale
+        </div>
+        <h1 class="display-4 fw-700 mb-4 text-white">
+          Détection du Cancer du Sein
+          <span class="text-accent">par IA</span>
+        </h1>
+        <p class="lead text-white-70 mb-5">
+          Analysez vos images médicales (échographies, mammographies) en quelques secondes
+          grâce à notre réseau de neurones convolutif. Résultat instantané avec carte de chaleur Grad-CAM.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{% url 'detector:upload' %}" class="btn btn-accent btn-lg px-5 shadow">
+            <i class="bi bi-upload me-2"></i>Analyser une image
+          </a>
+          <a href="{% url 'detector:history' %}" class="btn btn-outline-light btn-lg px-4">
+            <i class="bi bi-clock-history me-2"></i>Voir l'historique
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-5 text-center d-none d-lg-block">
+        <div class="hero-visual">
+          <div class="scan-ring">
+            <div class="scan-inner">
+              <i class="bi bi-heart-pulse-fill text-accent" style="font-size:5rem;"></i>
+            </div>
+          </div>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ─────────────────────────────────────────────────────────────── -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-sm-4">
+        <div class="stat-card text-center">
+          <div class="stat-icon bg-primary-soft">
+            <i class="bi bi-graph-up-arrow text-primary"></i>
+          </div>
+          <h2 class="stat-number text-primary">{{ total_analyses }}</h2>
+          <p class="stat-label">Analyses effectuées</p>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="stat-card text-center">
+          <div class="stat-icon bg-success-soft">
+            <i class="bi bi-check-circle-fill text-success"></i>
+          </div>
+          <h2 class="stat-number text-success">{{ benign_count }}</h2>
+          <p class="stat-label">Cas bénins détectés</p>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="stat-card text-center">
+          <div class="stat-icon bg-danger-soft">
+            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+          </div>
+          <h2 class="stat-number text-danger">{{ malignant_count }}</h2>
+          <p class="stat-label">Cas malins détectés</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ───────────────────────────────────────────────────────── -->
+<section class="py-6 bg-light-soft">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-700 text-dark">Comment ça fonctionne ?</h2>
+      <p class="text-muted">Trois étapes simples pour obtenir votre analyse</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">
+            <i class="bi bi-cloud-upload-fill"></i>
+          </div>
+          <h5 class="fw-600">Téléverser l'image</h5>
+          <p class="text-muted small">Importez une image d'échographie ou de mammographie au format JPG, PNG ou BMP.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">
+            <i class="bi bi-cpu-fill"></i>
+          </div>
+          <h5 class="fw-600">Analyse par IA</h5>
+          <p class="text-muted small">Notre CNN prétraite l'image (resize 224×224, normalisation) et effectue la classification.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">
+            <i class="bi bi-file-earmark-medical-fill"></i>
+          </div>
+          <h5 class="fw-600">Résultat détaillé</h5>
+          <p class="text-muted small">Obtenez le diagnostic (bénin/malin), le taux de confiance et la carte Grad-CAM.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Recent analyses ──────────────────────────────────────────────────── -->
+{% if recent_analyses %}
+<section class="py-6 bg-white">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-700 mb-0">Analyses récentes</h3>
+      <a href="{% url 'detector:history' %}" class="btn btn-outline-primary btn-sm">
+        Voir tout <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+    <div class="row g-3">
+      {% for analysis in recent_analyses %}
+      <div class="col-sm-6 col-lg-4">
+        <div class="analysis-card card border-0 shadow-sm h-100">
+          <div class="position-relative overflow-hidden rounded-top analysis-img-wrapper">
+            <img src="{{ analysis.image.url }}" class="analysis-thumb w-100" alt="Analysis #{{ analysis.id }}" />
+            <div class="result-badge-overlay badge bg-{{ analysis.result_color }}">
+              <i class="bi bi-{{ analysis.result_icon }} me-1"></i>{{ analysis.result }}
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ analysis.created_at|date:"d/m/Y H:i" }}</small>
+              <small class="fw-600 text-{{ analysis.confidence_color }}">{{ analysis.confidence }}%</small>
+            </div>
+            <div class="progress mb-2" style="height:6px;">
+              <div class="progress-bar bg-{{ analysis.result_color }}"
+                   style="width:{{ analysis.confidence }}%"></div>
+            </div>
+            <a href="{% url 'detector:result' analysis.pk %}" class="btn btn-sm btn-outline-{{ analysis.result_color }} w-100 mt-1">
+              Voir le résultat
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── CTA ────────────────────────────────────────────────────────────────── -->
+<section class="cta-section py-6">
+  <div class="container text-center">
+    <h2 class="fw-700 text-white mb-3">Prêt à analyser une image ?</h2>
+    <p class="text-white-70 mb-4">Téléversez votre image médicale et obtenez un résultat en quelques secondes.</p>
+    <a href="{% url 'detector:upload' %}" class="btn btn-accent btn-lg px-5 shadow-lg">
+      <i class="bi bi-microscope me-2"></i>Commencer l'analyse
+    </a>
+  </div>
+</section>
+
+{% endblock %}

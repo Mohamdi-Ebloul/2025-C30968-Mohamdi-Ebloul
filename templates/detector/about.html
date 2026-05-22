@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CancerDetect AI — À propos{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="text-center mb-5">
+        <div class="page-icon-wrapper mx-auto mb-3">
+          <i class="bi bi-info-circle text-primary" style="font-size:2rem;"></i>
+        </div>
+        <h2 class="fw-700">À propos du projet</h2>
+        <p class="text-muted">Mini projet universitaire — Détection du Cancer du Sein par Deep Learning</p>
+      </div>
+
+      <!-- Project card -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-700 mb-3"><i class="bi bi-mortarboard me-2 text-primary"></i>Contexte académique</h5>
+          <p class="text-muted">
+            Ce projet est un mini projet universitaire développé dans le cadre d'un cours d'Intelligence Artificielle.
+            Il démontre l'application du Deep Learning (CNN) à la classification d'images médicales pour
+            la détection précoce du cancer du sein à partir d'images ultrasonores.
+          </p>
+        </div>
+      </div>
+
+      <!-- Architecture -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-700 mb-3"><i class="bi bi-diagram-3 me-2 text-primary"></i>Architecture CNN</h5>
+          <div class="cnn-arch">
+            <div class="arch-layer">
+              <div class="arch-block bg-primary-soft text-primary">Input<br><small>224×224×3</small></div>
+              <div class="arch-arrow"><i class="bi bi-arrow-down"></i></div>
+            </div>
+            <div class="arch-layer">
+              <div class="arch-block bg-info-soft text-info">Conv2D ×2 + BN<br><small>32 filtres, 3×3</small></div>
+              <div class="arch-arrow"><i class="bi bi-arrow-down"></i></div>
+            </div>
+            <div class="arch-layer">
+              <div class="arch-block bg-info-soft text-info">Conv2D ×2 + BN<br><small>64 filtres, 3×3</small></div>
+              <div class="arch-arrow"><i class="bi bi-arrow-down"></i></div>
+            </div>
+            <div class="arch-layer">
+              <div class="arch-block bg-info-soft text-info">Conv2D ×2 + BN<br><small>128 filtres, 3×3</small></div>
+              <div class="arch-arrow"><i class="bi bi-arrow-down"></i></div>
+            </div>
+            <div class="arch-layer">
+              <div class="arch-block bg-warning-soft text-warning">GlobalAvgPool → Dense(256) → Dropout(0.5)</div>
+              <div class="arch-arrow"><i class="bi bi-arrow-down"></i></div>
+            </div>
+            <div class="arch-layer">
+              <div class="arch-block bg-success-soft text-success">Dense(1) — Sigmoid<br><small>0 = Benign | 1 = Malignant</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech stack -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-700 mb-3"><i class="bi bi-stack me-2 text-primary"></i>Technologies utilisées</h5>
+          <div class="row g-3">
+            {% for tech in techs %}
+            <div class="col-sm-6 col-md-4">
+              <div class="tech-chip">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>{{ tech }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Dataset -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-700 mb-3"><i class="bi bi-database me-2 text-primary"></i>Dataset — BUSI</h5>
+          <p class="text-muted mb-2">
+            <strong>Breast Ultrasound Images Dataset (BUSI)</strong> — Al-Dhabyani et al., 2020
+          </p>
+          <ul class="text-muted mb-0">
+            <li>780 images d'échographies mammaires</li>
+            <li>3 classes : Normal, Bénin, Malin</li>
+            <li>Ce projet utilise les classes Bénin / Malin (classification binaire)</li>
+            <li>Disponible sur Kaggle : <em>aryashah2k/breast-ultrasound-images-dataset</em></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Grad-CAM -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-700 mb-3"><i class="bi bi-fire me-2 text-danger"></i>Grad-CAM — Explainability</h5>
+          <p class="text-muted mb-0">
+            Gradient-weighted Class Activation Mapping (Selvaraju et al., 2017).
+            Génère une carte de chaleur qui met en évidence les régions de l'image qui ont le plus influencé
+            la décision du réseau de neurones, rendant le modèle interprétable pour les cliniciens.
+          </p>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="alert alert-danger border-0 rounded-4">
+        <div class="d-flex gap-2">
+          <i class="bi bi-shield-x flex-shrink-0 fs-4 mt-1"></i>
+          <div>
+            <strong>Avertissement :</strong> Ce système est développé à des fins éducatives uniquement.
+            Il ne constitue pas un dispositif médical certifié et ne doit pas être utilisé pour des décisions
+            cliniques réelles. Tout diagnostic doit être réalisé par un médecin spécialiste.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

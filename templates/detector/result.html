@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CancerDetect AI — Résultat #{{ analysis.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <!-- Back button -->
+      <a href="{% url 'detector:upload' %}" class="btn btn-outline-secondary btn-sm mb-4">
+        <i class="bi bi-arrow-left me-1"></i>Nouvelle analyse
+      </a>
+
+      <!-- Result Hero Card -->
+      <div class="result-hero-card card border-0 shadow-lg rounded-4 overflow-hidden mb-4
+                  {% if analysis.result == 'Malignant' %}result-malignant{% else %}result-benign{% endif %}">
+        <div class="card-body p-4 p-md-5">
+          <div class="row align-items-center">
+            <div class="col-md-6 mb-4 mb-md-0">
+              <div class="result-icon-wrapper mb-3">
+                {% if analysis.result == 'Malignant' %}
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {% else %}
+                <i class="bi bi-check-circle-fill"></i>
+                {% endif %}
+              </div>
+              <div class="result-label-pill mb-3">
+                {{ analysis.result|upper }}
+              </div>
+              <h3 class="fw-700 text-white mb-2">
+                {% if analysis.result == 'Malignant' %}
+                  Tumeur maligne détectée
+                {% else %}
+                  Tumeur bénigne détectée
+                {% endif %}
+              </h3>
+              <p class="text-white-70 mb-0">
+                {% if analysis.result == 'Malignant' %}
+                  L'IA a identifié des caractéristiques associées à une tumeur maligne.
+                  Consultez immédiatement un spécialiste.
+                {% else %}
+                  L'IA n'a pas identifié de signes malins. Une consultation médicale reste conseillée.
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <!-- Confidence gauge -->
+              <div class="confidence-gauge text-center">
+                <div class="gauge-wrapper mx-auto mb-3">
+                  <div class="gauge-circle">
+                    <svg viewBox="0 0 120 120" class="gauge-svg">
+                      <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="10"/>
+                      <circle cx="60" cy="60" r="54" fill="none" stroke="white" stroke-width="10"
+                              stroke-dasharray="339.3"
+                              stroke-dashoffset="{{ analysis.confidence|floatformat:0 | default:'0' }}"
+                              stroke-linecap="round"
+                              transform="rotate(-90 60 60)"
+                              id="gaugeArc"
+                              data-confidence="{{ analysis.confidence }}" />
+                    </svg>
+                    <div class="gauge-text">
+                      <span class="gauge-value" id="gaugeValue">0</span>
+                      <span class="gauge-unit">%</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-white fw-600 mb-0">Niveau de confiance</p>
+                <small class="text-white-70">
+                  {% if analysis.confidence >= 90 %}Très élevé{% elif analysis.confidence >= 70 %}Élevé{% else %}Modéré{% endif %}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Row -->
+      <div class="row g-4 mb-4">
+
+        <!-- Original image -->
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+              <h6 class="fw-600 mb-0"><i class="bi bi-image me-2 text-primary"></i>Image analysée</h6>
+            </div>
+            <div class="card-body p-4 text-center">
+              <img src="{{ analysis.image.url }}" class="img-fluid rounded-3 shadow-sm" style="max-height:280px;object-fit:contain;" alt="Image médicale" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Grad-CAM -->
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+              <h6 class="fw-600 mb-0">
+                <i class="bi bi-fire me-2 text-danger"></i>Carte Grad-CAM
+                <span class="badge bg-info-soft text-info ms-2 small">Zones d'attention</span>
+              </h6>
+            </div>
+            <div class="card-body p-4 text-center">
+              {% if analysis.gradcam_image %}
+              <img src="{{ analysis.gradcam_image.url }}" class="img-fluid rounded-3 shadow-sm"
+                   style="max-height:280px;object-fit:contain;" alt="Grad-CAM" />
+              <p class="text-muted small mt-2 mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Les zones rouges/chaudes indiquent les régions déterminantes pour la classification.
+              </p>
+              {% else %}
+              <div class="text-muted py-5">
+                <i class="bi bi-slash-circle fs-2 mb-2 d-block"></i>
+                Grad-CAM non disponible pour cette analyse.
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis metadata -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+          <h6 class="fw-600 mb-0"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Détails techniques</h6>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-sm-6 col-lg-3">
+              <div class="detail-metric">
+                <span class="detail-label">Résultat</span>
+                <span class="badge bg-{{ analysis.result_color }} fs-6">{{ analysis.result }}</span>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="detail-metric">
+                <span class="detail-label">Confiance</span>
+                <span class="fw-700 fs-5 text-{{ analysis.confidence_color }}">{{ analysis.confidence }}%</span>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="detail-metric">
+                <span class="detail-label">Score brut (sigmoid)</span>
+                <span class="fw-600 text-muted font-monospace">{{ analysis.raw_score }}</span>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="detail-metric">
+                <span class="detail-label">Temps de traitement</span>
+                <span class="fw-600 text-muted">{{ analysis.processing_time }}s</span>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="detail-metric">
+                <span class="detail-label">Date d'analyse</span>
+                <span class="text-muted">{{ analysis.created_at|date:"d/m/Y à H:i" }}</span>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="detail-metric">
+                <span class="detail-label">ID Analyse</span>
+                <span class="text-muted font-monospace">#{{ analysis.id }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confidence bar -->
+          <div class="mt-4">
+            <div class="d-flex justify-content-between mb-1">
+              <small class="text-muted fw-500">Niveau de confiance du modèle</small>
+              <small class="fw-600 text-{{ analysis.confidence_color }}">{{ analysis.confidence }}%</small>
+            </div>
+            <div class="progress" style="height:10px;border-radius:999px;">
+              <div class="progress-bar bg-{{ analysis.result_color }} transition-width"
+                   id="confBar"
+                   data-value="{{ analysis.confidence|floatformat:0 }}"
+                   style="width:0%;border-radius:999px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      {% if analysis.notes %}
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-600 mb-2"><i class="bi bi-pencil-square me-2 text-primary"></i>Notes du médecin</h6>
+          <p class="text-muted mb-0">{{ analysis.notes }}</p>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Disclaimer -->
+      <div class="alert alert-warning border-0 rounded-4 mb-4">
+        <div class="d-flex gap-2">
+          <i class="bi bi-shield-exclamation flex-shrink-0 fs-5 mt-1"></i>
+          <div>
+            <strong>Avertissement médical important :</strong><br>
+            Ce système est un outil d'aide au diagnostic à usage éducatif uniquement.
+            Il ne remplace en aucun cas un diagnostic établi par un médecin spécialiste.
+            Tout résultat doit être confirmé par un professionnel de santé qualifié.
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex flex-wrap gap-3">
+        <a href="{% url 'detector:upload' %}" class="btn btn-primary">
+          <i class="bi bi-plus-circle me-2"></i>Nouvelle analyse
+        </a>
+        <a href="{% url 'detector:history' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-clock-history me-2"></i>Voir l'historique
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-secondary">
+          <i class="bi bi-printer me-2"></i>Imprimer
+        </button>
+        <form method="post" action="{% url 'detector:delete' analysis.pk %}"
+              class="ms-auto"
+              onsubmit="return confirm('Supprimer cette analyse ?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-trash me-1"></i>Supprimer
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/result.js' %}"></script>
+{% endblock %}

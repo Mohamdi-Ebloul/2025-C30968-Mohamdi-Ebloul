@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CancerDetect AI — Analyser une image{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <!-- Header -->
+      <div class="text-center mb-5">
+        <div class="page-icon-wrapper mx-auto mb-3">
+          <i class="bi bi-upload text-primary" style="font-size:2rem;"></i>
+        </div>
+        <h2 class="fw-700">Analyser une image médicale</h2>
+        <p class="text-muted">Téléversez une échographie ou mammographie pour détecter un éventuel cancer du sein.</p>
+      </div>
+
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <!-- Card header -->
+        <div class="card-header bg-primary text-white py-3 px-4">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-microscope fs-5"></i>
+            <span class="fw-600">Nouvelle analyse</span>
+          </div>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+          <form method="post" enctype="multipart/form-data" id="analysisForm">
+            {% csrf_token %}
+
+            <!-- Drop Zone -->
+            <div class="upload-zone mb-4" id="dropZone">
+              <div class="upload-zone-content" id="dropContent">
+                <div class="upload-icon-wrapper mb-3">
+                  <i class="bi bi-cloud-arrow-up-fill"></i>
+                </div>
+                <h5 class="fw-600 mb-1">Glissez-déposez votre image ici</h5>
+                <p class="text-muted small mb-3">ou cliquez pour parcourir vos fichiers</p>
+                <span class="badge bg-light text-muted border">JPG · PNG · BMP · TIFF · max 10 MB</span>
+              </div>
+              <img id="imagePreview" src="#" alt="Preview" class="img-preview d-none" />
+              {{ form.image }}
+            </div>
+
+            {% if form.image.errors %}
+            <div class="alert alert-danger py-2 mb-3">
+              <i class="bi bi-exclamation-triangle me-1"></i>{{ form.image.errors.0 }}
+            </div>
+            {% endif %}
+
+            <!-- Image info bar -->
+            <div id="imageInfo" class="image-info-bar d-none mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="image-info-thumb" id="thumbContainer"></div>
+                <div class="flex-grow-1">
+                  <div class="fw-600 text-dark" id="fileName">—</div>
+                  <small class="text-muted" id="fileSize">—</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="removeImage">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-4">
+              <label class="form-label fw-500">
+                <i class="bi bi-pencil-square me-1 text-primary"></i>Notes du médecin
+                <span class="text-muted fw-400">(optionnel)</span>
+              </label>
+              {{ form.notes }}
+              {% if form.notes.errors %}
+              <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Info alert -->
+            <div class="alert alert-info border-0 bg-info-soft mb-4 py-3">
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-info-circle-fill text-info mt-1 flex-shrink-0"></i>
+                <div class="small">
+                  <strong>Traitement automatique :</strong> L'image sera redimensionnée à 224×224 px et normalisée
+                  avant d'être analysée par le réseau de neurones CNN. Une carte Grad-CAM sera générée pour
+                  visualiser les zones d'intérêt.
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+                <span id="btnNormal">
+                  <i class="bi bi-cpu me-2"></i>Lancer l'analyse IA
+                </span>
+                <span id="btnLoading" class="d-none">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Analyse en cours...
+                </span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Progress overlay -->
+      <div id="progressOverlay" class="d-none mt-4">
+        <div class="card border-0 shadow rounded-4">
+          <div class="card-body p-4">
+            <h6 class="fw-600 mb-3"><i class="bi bi-gear-fill spin me-2 text-primary"></i>Traitement en cours…</h6>
+            <div id="stepsList" class="steps-list mb-3">
+              <div class="step-item" data-step="1">
+                <div class="step-dot"></div>
+                <span>Chargement de l'image</span>
+              </div>
+              <div class="step-item" data-step="2">
+                <div class="step-dot"></div>
+                <span>Prétraitement (resize 224×224, normalisation)</span>
+              </div>
+              <div class="step-item" data-step="3">
+                <div class="step-dot"></div>
+                <span>Inférence CNN</span>
+              </div>
+              <div class="step-item" data-step="4">
+                <div class="step-dot"></div>
+                <span>Génération Grad-CAM</span>
+              </div>
+              <div class="step-item" data-step="5">
+                <div class="step-dot"></div>
+                <span>Sauvegarde en base de données</span>
+              </div>
+            </div>
+            <div class="progress" style="height:8px;">
+              <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                   id="mainProgressBar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/upload.js' %}"></script>
+{% endblock %}
