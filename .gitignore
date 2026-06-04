@@ -1,0 +1,96 @@
+# =====================
+# Python
+# =====================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# =====================
+# Virtual Environments
+# =====================
+venv/
+env/
+ENV/
+venv.bak/
+env.bak/
+.venv/
+
+# =====================
+# Django
+# =====================
+db.sqlite3
+media/
+staticfiles/
+*.log
+
+# Migrations (اختياري - إذا لا تريد رفعها)
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# =====================
+# Environment Variables
+# =====================
+.env
+.env.*
+!.env.example
+
+# =====================
+# IDE / Editors
+# =====================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =====================
+# OS Files
+# =====================
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# =====================
+# Testing / Coverage
+# =====================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+nosetests.xml
+
+# =====================
+# Build / Distribution
+# =====================
+build/
+dist/
+*.egg-info/
+*.egg
+
+# =====================
+# AI / ML models (مهم لمشروعك)
+# =====================
+*.pkl
+*.joblib
+*.h5
+*.pb
+.keras/
+detector/ai_model/
+
+# =====================
+# Cache / Temp
+# =====================
+*.cache
+.mypy_cache/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# =====================
+# Custom project files
+# =====================
+.claude/
+rapport_mini_projet.html
