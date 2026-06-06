@@ -77,7 +77,7 @@ dist/
 *.h5
 *.pb
 .keras/
-detector/ai_model/
+detector/ai_model/Dataset_BUSI_with_GT/
 
 # =====================
 # Cache / Temp
